@@ -1,0 +1,228 @@
+<!--------------------------------------------------------------------------------
+	
+    Aplikacja three.js - 07 geometries-2
+                        Tekst
+	
+	
+	P.Kowalczyk 2018.10
+
+Zmiany:
+wersja orginalna							P.K. 17/10/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>07 geometries-1</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+            <!--
+                z-index: 1 sluzy do dodania warstwy ponad tym co jest wyswietlone 
+                a wiec mozemy dzieki temu pisac po canvas
+            -->
+
+            <div id="output", style="position: absolute; z-index: 1; background-color: green;">
+                    1234
+            </div>
+            
+
+		<script src="js/three.js"></script>
+		<script>
+
+            //zmienne na rotacje
+            var rot = [0, 0, 0];
+            var key = [];
+            var objects = new THREE.Group();
+
+            //obsluga klawiatury
+            document.addEventListener("keydown", function(event) {key[event.keyCode] = true;});
+            document.addEventListener("keyup", function(event) {key[event.keyCode] = false;});
+
+
+
+			////////////////////////////
+			//Tworzenie sceny, kamery, renderera
+			//
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			//var renderer = new THREE.WebGLRenderer();
+			var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            //renderer.setClearColor(new THREE.Color(0x404040));
+
+			////////////////////////////
+			//powiazanie renderera z <body>
+			//
+			document.body.appendChild( renderer.domElement );
+
+
+			////////////////////////////
+			//tworzymy swiatlo ambient
+			var ambientLight = new THREE.AmbientLight( 0x808080 );
+			scene.add(ambientLight);
+			
+			////////////////////////////
+            //tworzymy swiatlo punktowe, kolor szary, intensywnosc 1, zasieg 100
+			var light = new THREE.PointLight( 0x808080, 1, 100 );
+			light.position.set( 0, 0, 30 );
+			//scene.add( light );
+
+			////////////////////////////
+            //tworzymy swiatlo hemisferyczne, kolor nieba niebieski, kolor gruntu bialy, intensywnosc 1
+			var lightH = new THREE.HemisphereLight( 0x008000, 0xffffff, 1 );
+			scene.add( lightH );
+
+			////////////////////////////
+            //Tworzenie geometrii
+            //
+            //
+
+            
+
+            //////////////////////
+            //dziala kod gdy inicjalizacja jest w funkcji alpha
+            //
+            var loader = new THREE.FontLoader();
+            loader.load( 'fonts/optimer_regular.typeface.json', function ( font ) {
+
+
+                var textGeometry = new THREE.TextGeometry( "THREE jest super!", {
+
+                    font: font,
+
+                    size: 2,
+                    height: 1,
+                    // curveSegments: 12,
+
+                    bevelThickness: 0.1,    //kontroluje jak gleboko przesuwa sie zaokraglenie
+                    bevelSize: 0.1,         //kontroluje jak bardzo na powierzchni tekstu wyglada zakraglenie
+                    bevelEnabled: true
+
+                });
+
+                var textMaterial = new THREE.MeshStandardMaterial( 
+                    {color: Math.random() *0xffffff }
+                );
+
+                var mesh = new THREE.Mesh( textGeometry, textMaterial );
+                
+                textGeometry.computeBoundingBox();             
+                var textW = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+                mesh.position.set( -0.5 * textW, 0, 0 );
+                
+                //przesunelismy mesh, ale poniewaz w funkcji animate dobieramy sie do mesh i tam robimy rotacje
+                //wiec niestety potrzebujemy dodatkowego obiektu aby 
+                //na wewnetrznym obiekcie zrobic translacje 
+                //a na zewnetrznym rotacje
+
+                
+                //scene.add( mesh );
+
+                var g = new THREE.Group();
+                g.add(mesh);
+                objects.add(g);
+            }); 
+
+
+            scene.add( objects );
+
+
+            camera.position.z = 15;
+            camera.lookAt(scene.position);
+
+
+            //renderScene();
+            animate();
+
+
+
+
+            function renderScene(){
+
+                objects.rotation.x = rot[0];
+                objects.rotation.y = rot[1];
+                objects.rotation.z = rot[2];
+                
+
+                // camera.rotation.x = rot[0];
+                // camera.rotation.y = rot[1];
+                // camera.rotation.z = rot[2];
+
+                document.getElementById("output").innerHTML =   "rotX=" + (Math.abs(objects.children[0].rotation.x*180/Math.PI)%360).toFixed(0) + "<br>" +
+                                                                "rotY=" + (Math.abs(objects.children[0].rotation.y*180/Math.PI)%360).toFixed(0) + "<br>" +
+                                                                "rotZ=" + (Math.abs(objects.children[0].rotation.z*180/Math.PI)%360).toFixed(0);
+			    renderer.render(scene, camera);
+            }
+
+			function animate() {
+                requestAnimationFrame( animate );
+
+                keyboard();
+                
+                if ( typeof animate.step == 'undefined' ) {
+                    // It has not... perform the initialization
+                    animate.step = 0.01;
+                    animate.index = 0;
+
+                }
+                for(var i = 0; i < objects.children.length; i++){
+                    objects.children[i].rotation.x += 0.01;
+                    objects.children[i].rotation.y += 0.015;
+                    objects.children[i].rotation.z += 0.0075;
+                }
+               
+                //coneMesh2.rotation.y += 0.01;
+                //coneMesh2.rotation.z += 0.01;
+
+                
+                //cube.position.x += animate.step;
+                animate.index += animate.step;
+                if(animate.index > 1 || animate.index < 0) animate.step = -animate.step;
+
+
+				renderScene();
+			};
+
+
+
+
+
+            function keyboard() {
+
+                if (key['a'.charCodeAt(0)] || key['A'.charCodeAt(0)]) {
+                    rot[1] -= 0.05;
+                } 
+                if (key['d'.charCodeAt(0)] || key['D'.charCodeAt(0)]) {
+                    rot[1] += 0.05;
+                } 
+                if (key['w'.charCodeAt(0)] || key['W'.charCodeAt(0)]) {
+                    rot[0] -= 0.05;
+                } 
+                if (key['s'.charCodeAt(0)] || key['S'.charCodeAt(0)]) {
+                    rot[0] += 0.05;
+                } 
+                if (key['z'.charCodeAt(0)] || key['Z'.charCodeAt(0)]) {
+                    rot[2] -= 0.05;
+                } 
+                if (key['x'.charCodeAt(0)] || key['X'.charCodeAt(0)]) {
+                    rot[2] += 0.05;
+                } 
+                if (key[32]) {
+                    rot[0] = rot[1] = rot[2] = 0;
+                } 
+
+            };
+
+
+            
+
+
+		</script>
+	</body>
+</html>

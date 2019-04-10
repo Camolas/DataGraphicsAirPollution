@@ -1,0 +1,150 @@
+<!--------------------------------------------------------------------------------
+	
+    Aplikacja three.js - 06 tools-box
+                       rysujemy zwykly szescian ktory posluzy nam do prostych testow
+                       dodajemy gui do kontrolowania wygladu
+	
+	
+	P.Kowalczyk 2018.11
+
+Zmiany:
+wersja orginalna							P.K. 03/11/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>07 geometries-1</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+
+        <script src="js/three.js"></script>
+        <script src="js/OrbitControls.js"></script>
+        <script src='js/dat.gui.min.js'></script>
+		<script>
+
+            
+            var gui;                            //zmienna do gui
+            var parameters;                     //obiekt ktory bedzie przechowywal parametry ustawiana przez GUI
+
+			////////////////////////////
+			//Tworzenie sceny, kamery, renderera
+			//
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			//var renderer = new THREE.WebGLRenderer();
+			var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            //renderer.setClearColor(new THREE.Color(0x404040));
+
+            ////////////////////////////
+            //Utworzenie kontrolera dzieki ktoremu mozna myszka zmieniac polozenie kamery na scenie
+            //
+            var controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+            //pamietaj aby dodac controls.update() do funkcji animacyjnej jesli wlaczyles  enableDamping (przyspieszenia)
+            //lub autoRotate
+            // controls.enableDamping = true;
+            // controls.dampingFactor = 1.8;
+
+            //controls.autoRotate = true;
+
+
+
+			////////////////////////////
+			//powiazanie renderera z <body>
+			//
+			document.body.appendChild( renderer.domElement );
+
+
+
+			////////////////////////////
+            //Tworzenie geometrii
+            //
+            //
+
+            //BoxGeometry(wymiarX, wymiarY, wymiarZ)
+            var cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( {color: Math.random() *0xffffff } ));
+            //cube.material.wireframe = true; 
+            for ( var i = 0; i < cube.geometry.faces.length; i += 2) {
+                cube.geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
+                cube.geometry.faces[ i+1 ].color.copy( cube.geometry.faces[ i ].color );
+                
+                //Uwaga!
+                //dodanie do face kolorow vertex (vertexColors) powoduje ignorowanie kolorow podanych dla scian facow
+                // for(var j = 0; j < 3; j++){
+                //     // cube.geometry.faces[ i ].vertexColors.push( new THREE.Color(Math.random() * 0xffffff ));
+                //     // cube.geometry.faces[ i+1 ].vertexColors.push( new THREE.Color(Math.random() * 0xffffff ));
+                //     cube.geometry.faces[ i ].vertexColors[j] = new THREE.Color(Math.random() * 0xffffff );
+                //     cube.geometry.faces[ i+1 ].vertexColors[j] = new THREE.Color(Math.random() * 0xffffff );
+                // }
+            }
+
+            scene.add(cube);
+  
+           
+            
+            camera.position.z = 3;
+            camera.lookAt(scene.position);
+
+            initGUI();
+
+
+            //renderScene();
+            animate();
+
+
+
+
+            function renderScene(){
+
+ 			    renderer.render(scene, camera);
+            }
+
+			function animate() {
+                requestAnimationFrame( animate );
+                
+                controls.update();
+
+				renderScene();
+
+			};
+
+            function initGUI() {
+                gui =  new dat.GUI();
+                parameters = {
+                    wireframe: false,
+                    colors: "NoColors",
+                };
+
+	            var folder1 = gui.addFolder('geometry');
+                var wireframe = folder1.add(parameters, 'wireframe').listen();
+                var colors = folder1.add(parameters, 'colors', ['NoColors', 'FaceColors', 'VertexColors']).listen();
+                
+                folder1.open();
+
+                wireframe.onChange(function(value) {   
+                    cube.material.wireframe = value;   
+                });
+                colors.onChange(function(value) {
+
+                    if(value == 'NoColors') cube.material.vertexColors = THREE.NoColors;   
+                    else if(value == 'FaceColors') {cube.material.vertexColors = THREE.FaceColors;  } 
+                    else if(value == 'VertexColors') { cube.material.vertexColors = THREE.VertexColors;  } 
+                    
+                    cube.material.needsUpdate = true;
+                    cube.geometry.colorsNeedUpdate = true;
+
+                });
+
+                gui.open();
+            }
+		</script>
+	</body>
+</html>

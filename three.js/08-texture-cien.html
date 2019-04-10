@@ -1,0 +1,118 @@
+<!--------------------------------------------------------------------------------
+	
+	Aplikacja three.js - 05 tekstury 
+		zlozony projekt z dwoma teksturami i cieniami. Rozwiniecie zadania 4e
+	
+	P.Kowalczyk styczen 2018
+	Na podstawie 
+	https://threejs.org/docs/index.html#manual/introduction/Creating-a-scene
+
+Zmiany:
+wersja orginalna							P.K. 01/01/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>05b tekstura</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+			
+			document.body.appendChild( renderer.domElement );
+
+			//tworzymy grupe zawierajaca kostke i swiatlo
+			var group = new THREE.Group();
+			
+			//dla swiatla i jego wizualizacji tworzymy jeszcze jedna grupe
+			//dzieki temu bedzie nam latwo przesuwac cala grupe a nie osobno swiatlo i 
+			//osobno kulke symbolizujaca jego lokalizacje w przestrzeni
+			var groupLight = new THREE.Group();
+			
+			//tworzymy swiatlo hemisferyczne (kolor nieba, kolor ziemi, intensywnosc)
+			var ambientLight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+			scene.add(ambientLight);
+			
+			//tworzymy swiatlo punktowe, ktore rzuca cienie
+			var light = new THREE.PointLight( 0xff0000, 1, 100 );
+			light.castShadow = true;
+			groupLight.add( light );
+
+			//tworzymy mala kostke w miejscu gdzie jest swiatlo
+			var sphere = new THREE.BoxGeometry(0.1,0.1,0.1);//SphereGeometry( 0.1, 10, 10);
+			var smesh = new THREE.Mesh( sphere, new THREE.MeshBasicMaterial({ color: 0xff8000 }) );
+			smesh.castShadow = false; 			//default to fausz
+			smesh.receiveShadow = false; 		//default to fausz
+			groupLight.add(smesh);
+			
+		
+			//dodajemy swiatlo i kulke do grupy ktora bedzie zawierala jeszcze kostke
+			group.add(groupLight);
+			
+			//tworzymy kostke
+			var geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5);
+			var texOkno = new THREE.TextureLoader().load( 'textures/256_256.jpg' );
+			var mesh = new THREE.Mesh( geometry, new THREE.MeshStandardMaterial( {map: texOkno} ) );
+			mesh.castShadow = true; 		//default to fausz
+			mesh.receiveShadow = false; 	//default to fausz
+
+			group.add( mesh );
+			
+			//dodajemy grupe do sceny
+			scene.add(group);
+
+			
+			//tworzymy duza kostke wewnatrz ktorej dzieje sie wszystko
+			var duzaKostkaGeo = new THREE.BoxGeometry( 3, 3, 3);
+			var texBrick = new THREE.TextureLoader().load( 'textures/bricks.jpg' );
+			var duzaKostkaMesh = new THREE.Mesh( duzaKostkaGeo, new THREE.MeshStandardMaterial( {side: THREE.BackSide, map: texBrick} ) );
+			duzaKostkaMesh.castShadow = false; 		//default to fausz
+			duzaKostkaMesh.receiveShadow = true; 	//default to fausz
+			
+			scene.add (duzaKostkaMesh);
+			
+			//Create a helper for the shadow camera (optional)
+			//var helper = new THREE.CameraHelper( light.shadow.camera );
+			//scene.add( helper );
+			
+			camera.position.z = 2;
+
+			var matrixLight = new THREE.Matrix4();
+			var rot = 0;
+			
+			groupLight.matrixAutoUpdate = false;
+			
+			var animate = function () {
+				requestAnimationFrame( animate );
+
+				matrixLight.identity();
+				matrixLight.makeRotationY(rot);
+				matrixLight.multiply(new THREE.Matrix4().makeTranslation(0, 0, 0.85));
+				groupLight.matrix.copy(matrixLight);
+				
+				rot += 0.03;
+				
+				group.rotation.x += 0.01;
+				group.rotation.y += 0.01;
+
+				renderer.render(scene, camera);
+		};
+
+			animate();		
+		</script>
+	</body>
+</html>

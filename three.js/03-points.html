@@ -1,0 +1,97 @@
+<!--------------------------------------------------------------------------------
+	
+	Aplikacja three.js - 03 2 punkty na ekranie
+						+ informacja o rozmiarach punktow
+	
+	
+	P.Kowalczyk 2018.10
+
+Zmiany:
+wersja orginalna							P.K. 03/10/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>03 points</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+
+		<script src="js/three.js"></script>
+		<script>
+			
+			////////////////////////////
+			//Tworzenie sceny, kamery, renderera
+			//
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+
+			////////////////////////////
+			//powiazanie renderera z <body>
+			//
+			document.body.appendChild( renderer.domElement );
+
+
+
+			//1.wytlumacz studentom polozenie punktu vs polozenie kamery
+			//2.pokaz co robi sizeAttenuation !!!!!
+
+			////////////////////////////
+			//Tworzenie geometrii, materialu, Siatki. Dodanie do sceny
+			//
+			var geometry = new THREE.Geometry( );
+			geometry.vertices.push(new THREE.Vector3(0, 0, -1));
+			geometry.vertices.push(new THREE.Vector3(1, 0, -1));
+
+            var material = new THREE.PointsMaterial( { size: 10
+                                                        , sizeAttenuation: false
+                                                        , color: 0xff00ff 
+                                                    } );
+			var dot = new THREE.Points( geometry, material );
+			scene.add( dot );
+
+			//camera.position.z = 1;
+			renderer.render(scene, camera);
+
+/*
+            /////////////////////////////////////////////////////////////////
+            //pobieramy rozmiar punktow
+            //1. musimy pobrac kontekst webgl
+            //2. pytamy o rozmiar za pomoca getParameter
+            //3. Wyswietlamy wyniki
+            //4. Przy okazji wyswietlamy informacje o karcie graficznej
+            //
+
+            ////////////////////////////////////////////////////////////////
+            //pobanie kontekstu (kontekst [canva] tworzona jest automatycznie przez renderer)
+            var gl = renderer.domElement.getContext('webgl');
+            
+
+            ////////////////////////////////////////////////////////////////
+            //pobranie rozmiaru
+            var pointSizeRange = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE);
+
+
+            ////////////////////////////////////////////////////////////////
+            //wyniki
+            window.alert("Rozmiar min = " + pointSizeRange[0] + "\nrozmiar max = " + pointSizeRange[1]);
+
+            ////////////////////////////////////////////////////////////////
+            //inne zapytania
+            window.alert("vendor:\t\t\t" + gl.getParameter(gl.VENDOR) + 
+                        "\nversion:\t\t\t" + gl.getParameter(gl.VERSION) +
+                        "\nrenderer:\t\t\t" +gl.getParameter(gl.RENDERER) +
+                        "\nshading lang. ver.:\t" + gl.getParameter(gl.SHADING_LANGUAGE_VERSION) );
+    
+*/
+		</script>
+	</body>
+</html>

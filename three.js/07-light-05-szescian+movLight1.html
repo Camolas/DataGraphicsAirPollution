@@ -1,0 +1,84 @@
+<!--------------------------------------------------------------------------------
+	
+	Aplikacja three.js - 06 swiatlo (swiatlo porusza sie z obiektem)
+	
+	
+	P.Kowalczyk styczen 2018
+	Na podstawie 
+	https://threejs.org/docs/index.html#manual/introduction/Creating-a-scene
+
+Zmiany:
+wersja orginalna							P.K. 01/01/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>06-Light-5</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			//tworzymy grupe zawierajaca kostke i swiatlo
+			var group = new THREE.Group();
+			
+			//tworzymy swiatlo ambient
+			var ambientLight = new THREE.AmbientLight( 0x404040 );
+			scene.add(ambientLight);
+			
+			//tworzymy swiatlo punktowe
+			var light = new THREE.PointLight( 0xff0000, 1, 100 );
+			light.position.set( 0, 0, 0.85 );
+			group.add( light );
+			//tworzymy sfere w miejscu gdzie jest swiatlo
+			var sphere = new THREE.SphereGeometry( 0.1, 10, 10);
+			var smesh = new THREE.Mesh( sphere, new THREE.MeshBasicMaterial({ color: 0xff8000 }) );
+			
+			//ustawiamy pozycje rysowania sie obiektu w miejscu gdzie jest swiatlo
+			//jednak - nalezy tu uwazac kod:
+			//smesh.position = light.position <- nie powoduje wywolania operatora= ale kopiuje wskazniki
+			//i powstaje zong! Kod nie dziala. Aby bylo dobrze trzeba zadzialac jak ponizej
+			//smesh.position = light.position;
+			smesh.position.copy( light.position );	
+			
+			group.add(smesh);
+			
+			
+			//tworzymy kostke
+			var geometry = new THREE.BoxGeometry( 1, 1, 1);
+			
+			var mesh = new THREE.Mesh( geometry, new THREE.MeshStandardMaterial() );
+
+			group.add( mesh );
+			
+			//dodajemy grupe do sceny
+			scene.add(group);
+
+			camera.position.z = 2;
+
+			var animate = function () {
+				requestAnimationFrame( animate );
+
+				group.rotation.x += 0.01;
+				group.rotation.y += 0.01;
+
+				renderer.render(scene, camera);
+			};
+
+			animate();		
+		</script>
+	</body>
+</html>

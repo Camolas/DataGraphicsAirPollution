@@ -1,0 +1,80 @@
+<!--------------------------------------------------------------------------------
+	
+	Aplikacja three.js - 04 linie
+	
+	
+	P.Kowalczyk 2018.10
+
+Zmiany:
+wersja orginalna							P.K. 05/10/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>04 lines</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+
+		<script src="js/three.js"></script>
+		<script>
+			
+			////////////////////////////
+			//Tworzenie sceny, kamery, renderera
+			//
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			//var renderer = new THREE.WebGLRenderer();
+			var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setClearColor(new THREE.Color(0x404040));
+
+			////////////////////////////
+			//powiazanie renderera z <body>
+			//
+			document.body.appendChild( renderer.domElement );
+
+
+			////////////////////////////
+			//Tworzenie geometrii, materialu, Siatki. Dodanie do sceny
+			//
+            var geometry = new THREE.Geometry( );
+			geometry.vertices.push(new THREE.Vector3(-0.5, -0.5, -1));
+			geometry.vertices.push(new THREE.Vector3(0.5, -0.5, -1));
+            
+            geometry.vertices.push(new THREE.Vector3(0.5, 0.5, -1));
+            geometry.vertices.push(new THREE.Vector3(-0.5, 0.5, -1));
+
+			////////////////////////////
+			//Dwa typy materialu
+			//
+            var material = new THREE.LineBasicMaterial( { linewidth: 1, color: 0xf080ff } );
+            //var material = new THREE.LineDashedMaterial( { color: 0xf000f0, dashSize: 1, gapSize: 1, scale: 10 } );
+
+
+			////////////////////////////
+			//Rozne typy lini
+			//
+            var line = new THREE.LineSegments( geometry, material );
+			//var line = new THREE.LineLoop( geometry, material );
+            //var line = new THREE.Line( geometry, material );
+
+            
+            //oblicz odleglosci dla lini jesli meterial jest Dashed
+            line.computeLineDistances();
+
+            scene.add( line );
+
+
+			//camera.position.z = 1;
+			renderer.render(scene, camera);
+
+		</script>
+	</body>
+</html>

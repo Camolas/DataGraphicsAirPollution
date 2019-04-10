@@ -1,0 +1,98 @@
+<!--------------------------------------------------------------------------------
+	
+    Aplikacja three.js - 06 tools-box
+                       rysujemy zwykly szescian ktory posluzy nam do prostych testow
+	
+	
+	P.Kowalczyk 2018.11
+
+Zmiany:
+wersja orginalna							P.K. 03/11/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>07 geometries-1</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+
+        <script src="js/three.js"></script>
+        <script src="js/OrbitControls.js"></script>
+		<script>
+
+
+			////////////////////////////
+			//Tworzenie sceny, kamery, renderera
+			//
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			//var renderer = new THREE.WebGLRenderer();
+			var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            //renderer.setClearColor(new THREE.Color(0x404040));
+
+            ////////////////////////////
+            //Utworzenie kontrolera dzieki ktoremu mozna myszka zmieniac polozenie kamery na scenie
+            //
+            var controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+            //pamietaj aby dodac controls.update() do funkcji animacyjnej jesli wlaczyles  enableDamping (przyspieszenia)
+            //lub autoRotate
+            // controls.enableDamping = true;
+            // controls.dampingFactor = 1.3;
+
+            // controls.autoRotate = true;
+
+
+
+			////////////////////////////
+			//powiazanie renderera z <body>
+			//
+			document.body.appendChild( renderer.domElement );
+
+
+
+			////////////////////////////
+            //Tworzenie geometrii
+            //
+            //
+
+            //BoxGeometry(wymiarX, wymiarY, wymiarZ)
+            var cube = new THREE.Mesh( new THREE.BoxGeometry(1,1,1), new THREE.MeshBasicMaterial( {color: Math.random() *0xffffff } ));
+            //cube.material.wireframe = true; 
+            scene.add(cube);
+  
+           
+            
+            camera.position.z = 3;
+            camera.lookAt(scene.position);
+
+
+            //renderScene();
+            animate();
+
+
+
+
+            function renderScene(){
+
+ 			    renderer.render(scene, camera);
+            }
+
+			function animate() {
+                requestAnimationFrame( animate );
+                
+                controls.update();
+
+				renderScene();
+			};
+		</script>
+	</body>
+</html>

@@ -1,0 +1,224 @@
+<!--------------------------------------------------------------------------------
+	
+    Aplikacja three.js - 05 triangle-7
+                        A teraz chcemy z dwoch stozkow zbudowac klepsydre
+	
+	
+	P.Kowalczyk 2018.10
+
+Zmiany:
+wersja orginalna							P.K. 05/10/2018
+reorganizacja z powodu wykladu              P.K. 23/10/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>05 triangle-7</title>
+		<style>
+			body { margin: 0; }
+		</style>
+	</head>
+	<body>
+
+		<script src="js/three.js"></script>
+		<script>
+
+            //zmienne na rotacje
+            var rot = [0, 0, 0];
+            var animm = false;
+
+            //obsluga klawiatury
+            document.addEventListener("keydown", onDocumentKeyDown, false);
+
+
+
+			////////////////////////////
+			//Tworzenie sceny, kamery, renderera
+			//
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			//var renderer = new THREE.WebGLRenderer();
+			var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            renderer.setClearColor(new THREE.Color(0x404040));
+
+			////////////////////////////
+			//powiazanie renderera z <body>
+			//
+			document.body.appendChild( renderer.domElement );
+
+
+			////////////////////////////
+            //Tworzenie geometrii
+            //rownanie okregu
+            //
+
+            
+
+            var cone1 = new THREE.Geometry( );
+            cone1.vertices.push(new THREE.Vector3(0, 0, 2));
+            addPointsToGeometry(16, cone1, "white", "rgb(100%, 50%, 10%)");
+            
+            var cone2 = cone1.clone();
+
+            var coneMaterial = new THREE.MeshBasicMaterial( {vertexColors: THREE.FaceColors } );
+            
+
+            var coneMesh = new THREE.Mesh( cone1, coneMaterial );
+            var coneMesh2 = new THREE.Mesh( cone2, coneMaterial );
+
+            ////////////////////////////////////////////////////////
+            //dokonujemy przesuniec i obrotow aby z dwoch obiektow zbudowac 
+            //klepsydre
+            //
+            coneMesh.position.x = -2;
+            coneMesh2.position.x = 2;
+            coneMesh.rotation.y = Math.PI/2;
+            coneMesh2.rotation.y = -Math.PI/2;
+
+            var sandGlass = new THREE.Group();
+
+            sandGlass.add(coneMesh);
+            sandGlass.add(coneMesh2);
+
+            scene.add( sandGlass );
+
+            
+            camera.position.z = 4;
+            camera.lookAt(scene.position);
+
+
+
+            //renderScene();
+
+            /////////////////////////////////////////////////
+            // animacja
+            //
+             animate();
+
+
+
+
+            function renderScene(){
+
+                sandGlass.rotation.x = rot[0];
+                sandGlass.rotation.y = rot[1];
+                sandGlass.rotation.z = rot[2];
+                
+
+                // camera.rotation.x = rot[0];
+                // camera.rotation.y = rot[1];
+                // camera.rotation.z = rot[2];
+
+ 			    renderer.render(scene, camera);
+            }
+
+			function animate() {
+                requestAnimationFrame( animate );
+                
+                ////////////////////////////////////////////////////////////////
+                //obrot wokol osi
+                //
+                coneMesh2.rotation.x += 0.01;
+                //coneMesh2.position.x -= 0.01;
+
+                //// coneMesh2.rotation.y += 0.01;
+                //// coneMesh2.rotation.z += 0.01;
+
+
+                ////////////////////////////////////////////////////////////////
+                // robmy ruch liniowy
+                //
+
+                // ////////////////////////////////////////////////////
+                // // Ha!!!! Kazda funkcja to obiekt! Mozna dodawac zmienne!!
+                // //
+                if ( typeof animate.step == 'undefined' ) {
+                    animate.step = 0.01;
+                    animate.index = 0;
+                }
+                
+                coneMesh2.position.x += animate.step;
+                animate.index += animate.step;
+                if(animate.index > 1 || animate.index < 0) animate.step = -animate.step;
+
+
+				renderScene();
+			};
+
+
+
+
+            function addPointsToGeometry(number, geometry, c1, c2){
+                for(var i = 0; i < number; i++){
+                    var a = i * 2 * Math.PI / number;
+                    geometry.vertices.push(new THREE.Vector3(Math.sin(a), Math.cos(a), 0));   
+                }   
+        
+                for(var i = 1; i <= number; i++){
+                    var face;
+                    var color;
+                    if(i < number){
+                        face = new THREE.Face3(0, i+1, i);
+                    }
+                    else{
+                        face = new THREE.Face3(0, 1, i);
+                    }
+
+                    if(i & 1){
+                        color = new THREE.Color(c1);
+                    } 
+                    else 
+                    {
+                        color = new THREE.Color(c2);
+                    }
+                
+                
+                    face.color.set(color);
+                    geometry.faces.push(face);
+                }
+   
+            }
+
+            function onDocumentKeyDown(event) {
+                var key = event.which;
+                /*const keyName = event.key;
+                alert('keydown event\n\n' + 'key: ' + key);*/
+
+                if (key == 'a'.charCodeAt(0) || key == 'A'.charCodeAt(0)) {
+                    rot[1] -= 0.05;
+                } 
+                else if (key == 'd'.charCodeAt(0) || key == 'D'.charCodeAt(0)) {
+                    rot[1] += 0.05;
+                } 
+                else if (key == 'w'.charCodeAt(0) || key == 'W'.charCodeAt(0)) {
+                    rot[0] -= 0.05;
+                } 
+                else if (key == 's'.charCodeAt(0) || key == 'S'.charCodeAt(0)) {
+                    rot[0] += 0.05;
+                } 
+                else if (key == 'z'.charCodeAt(0) || key == 'Z'.charCodeAt(0)) {
+                    rot[2] -= 0.05;
+                } 
+                else if (key == 'x'.charCodeAt(0) || key == 'X'.charCodeAt(0)) {
+                    rot[2] += 0.05;
+                } 
+                else if (key == 32) {
+                    rot[0] = rot[1] = rot[2] = 0;
+                } 
+
+                //animate();
+                renderScene();
+            };
+
+
+            
+
+
+		</script>
+	</body>
+</html>

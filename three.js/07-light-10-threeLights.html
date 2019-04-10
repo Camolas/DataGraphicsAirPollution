@@ -1,0 +1,99 @@
+<!--------------------------------------------------------------------------------
+	
+	Aplikacja three.js - 06 swiatlo
+	trzy ruchome swiatla R, G, B ponad plaszczyzna
+	
+	
+	P.Kowalczyk pazdziernik 2018
+	
+
+Zmiany:
+wersja orginalna							P.K. 21/10/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>06-Light-10</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			document.body.appendChild( renderer.domElement );
+
+			//tworzymy swiatlo ambient
+			var ambientLight = new THREE.AmbientLight( 0x808080 );
+			//scene.add(ambientLight);
+			
+			////////////////////////////////////////
+			//tworzymy swiatlo punktowe R
+			var rLightGroup = new THREE.Group();
+			var lightR = new THREE.PointLight( 0xff0000, 1, 100 );
+			//light.position.set( 0, 0, 0.0 );
+			var bulbR = new THREE.Mesh( new THREE.SphereGeometry( 0.1, 10, 10), new THREE.MeshBasicMaterial({color: 0xff0000}) );
+			lightR.position.set( 0, 0, 2.0 );
+			bulbR.position.set( 0, 0, 2.0 );
+			rLightGroup.add(lightR);
+			rLightGroup.add(bulbR);
+
+			scene.add( rLightGroup );
+
+			////////////////////////////////////////
+			//tworzymy swiatlo punktowe G
+			var gLightGroup = new THREE.Group();
+			var lightG = new THREE.PointLight( 0x00ff00, 1, 100 );
+			var bulbG = new THREE.Mesh( new THREE.SphereGeometry( 0.1, 10, 10), new THREE.MeshBasicMaterial({color: 0x00ff00}) );
+			lightG.position.set( 0, 0, 2.2 );
+			bulbG.position.set( 0, 0, 2.2 );
+			gLightGroup.add(lightG);
+			gLightGroup.add(bulbG);
+
+			scene.add( gLightGroup );
+
+			////////////////////////////////////////
+			//tworzymy swiatlo punktowe B
+			var bLightGroup = new THREE.Group();
+			var lightB = new THREE.PointLight( 0x0000ff, 1, 100 );
+			var bulbB = new THREE.Mesh( new THREE.SphereGeometry( 0.1, 10, 10), new THREE.MeshBasicMaterial({color: 0x0000ff}) );
+			lightB.position.set( 0, 0, 1.8 );
+			bulbB.position.set( 0, 0, 1.8 );
+			bLightGroup.add(lightB);
+			bLightGroup.add(bulbB);
+
+			scene.add( bLightGroup );
+
+		
+			var plane = new THREE.Mesh( new THREE.PlaneGeometry( 5, 5, 10), new THREE.MeshStandardMaterial() );
+			//var plane = new THREE.Mesh( new THREE.BoxGeometry( 1, 1, 1), new THREE.MeshStandardMaterial() );
+            plane.position.set (0, -1, 0);
+            plane.rotation.x = -Math.PI/2;
+
+			scene.add( plane );
+
+			camera.position.z = 4;
+
+			var animate = function () {
+				requestAnimationFrame( animate );
+
+				rLightGroup.rotation.y += 0.01;
+				gLightGroup.rotation.y += 0.015;
+				bLightGroup.rotation.y += 0.005;
+
+				renderer.render(scene, camera);
+			};
+
+			animate();		
+		</script>
+	</body>
+</html>

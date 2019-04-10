@@ -1,0 +1,167 @@
+<!--------------------------------------------------------------------------------
+	
+	Aplikacja three.js - 06 uklad solarny 
+		dodany ruch kamery aby mozna bylo patrzec z roznych pozycji
+	
+	P.Kowalczyk styczen 2018
+	Na podstawie 
+	https://threejs.org/docs/index.html#manual/introduction/Creating-a-scene
+	Tekstury z
+	http://www.jnoodle.com/makeit/blitz2.html
+
+Zmiany:
+wersja orginalna							P.K. 01/01/2018
+
+-------------------------------------------------------------------------------->
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset=utf-8>
+		<title>06b solar</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+		</style>
+	</head>
+	<body>
+		<script src="js/three.js"></script>
+		<script>
+		
+			var angleX = 0;
+			var angleY = 0;
+			var cameraDistance = 50;
+
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.shadowMap.enabled = true;
+			renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+			
+			document.body.appendChild( renderer.domElement );
+
+			//tworzymy swiatlo hemisferyczne (kolor nieba, kolor ziemi, intensywnosc)
+			var ambientLight = new THREE.HemisphereLight( 0xffffbb, 0x080820, 0.8 );
+			scene.add(ambientLight);
+			
+			
+			//tworzymy slonce
+			var sun = new THREE.Group();
+			var sunG = new THREE.SphereGeometry( 10, 36, 36);
+			var sunT = new THREE.TextureLoader().load( 'textures/sunmap.jpg' );
+			var sunM = new THREE.Mesh( sunG, new THREE.MeshBasicMaterial({ color: 0xffffff, map: sunT }) );
+			sun.add(sunM);
+			//tworzymy swiatlo punktowe, ktore rzuca cienie
+			var sunL = new THREE.PointLight( 0xffffff, 1, 1000 );
+			//var sunL = new THREE.DirectionalLight ( 0xffffff, 1 );
+			sunL.castShadow = true;
+			//sunL.position.set(0, 100, 1);
+			sun.add( sunL );
+			
+			
+			//tworzymy mercury
+			var mercury = new THREE.Group();
+			var mercuryG = new THREE.SphereGeometry( 1.5, 36, 36);
+			var mercuryT = new THREE.TextureLoader().load( 'textures/mercurymap.jpg' );
+			var mercuryM = new THREE.Mesh( mercuryG, new THREE.MeshStandardMaterial({ color: 0xffffff, map: mercuryT }) );
+			mercuryM.position.x = 15;
+			mercuryM.castShadow = true;
+			mercury.add(mercuryM);
+
+			
+			
+			//tworzymy wenus
+			var wenus = new THREE.Group();
+			var wenusG = new THREE.SphereGeometry( 4, 36, 36);
+			var wenusT = new THREE.TextureLoader().load( 'textures/venusmap.jpg' );
+			var wenusM = new THREE.Mesh( wenusG, new THREE.MeshStandardMaterial({ color: 0xffffff, map: wenusT }) );
+			wenusM.position.x = 25;
+			wenusM.castShadow = true;
+			wenusM.receiveShadow = true;
+			wenus.add(wenusM);
+			
+
+			//tworzymy ziemie
+			var ziemia = new THREE.Group();
+			var ziemiaG = new THREE.SphereGeometry( 5, 36, 36);
+			var ziemiaT = new THREE.TextureLoader().load( 'textures/earthmap.jpg' );
+			var ziemiaM = new THREE.Mesh( ziemiaG, new THREE.MeshStandardMaterial({ color: 0xffffff, map: ziemiaT }) );
+			ziemiaM.position.x = 50;
+			ziemiaM.castShadow = true;
+			ziemiaM.receiveShadow = true;
+			ziemia.add(ziemiaM);
+			// i tworzymy ksiezyc
+			var ksiezyc = new THREE.Group();
+			var ksiezycG = new THREE.SphereGeometry( 2.5, 36, 36);
+			var ksiezycT = new THREE.TextureLoader().load( 'textures/moonmap.jpg' );
+			var ksiezycM = new THREE.Mesh( ksiezycG, new THREE.MeshStandardMaterial({ color: 0xffffff, map: ksiezycT }) );
+			ksiezycM.position.x = 12;
+			ksiezycM.castShadow = true;
+			ksiezycM.receiveShadow = true;
+			ksiezyc.add(ksiezycM);
+			
+			ziemiaM.add(ksiezyc);
+			
+
+			sun.add(mercury);
+			sun.add(wenus);
+			sun.add(ziemia);
+			
+			//sun.rotation.x = Math.PI/2;
+			
+			scene.add(sun);
+			
+			
+			camera.position.z = cameraDistance;
+			
+			document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				//document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+				//document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+			window.addEventListener( 'resize', onWindowResize, false );
+
+			var animate = function () {
+				requestAnimationFrame( animate );
+				
+				camera.position.x = cameraDistance * Math.cos(angleY)*Math.cos(angleX);
+				camera.position.y = cameraDistance * Math.cos(angleY)*Math.sin(angleX);
+				camera.position.z = cameraDistance * Math.sin(angleY);
+				camera.lookAt( sun.position );
+
+
+				sunM.rotation.z += 0.1;
+				sunM.rotation.x += 0.01;
+				sunM.rotation.y += 0.001;
+				
+				mercury.rotation.y += 0.05;
+				mercuryM.rotation.y += 0.09;
+
+				wenus.rotation.y += 0.01;
+				wenusM.rotation.y += 0.05;
+
+				ziemia.rotation.y += 0.004;
+				ziemiaM.rotation.y += 0.05;
+				
+				ksiezyc.rotation.y += 0.05;
+				
+				renderer.render(scene, camera);
+		};
+
+			animate();	
+
+			
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+			function onDocumentMouseMove( event ) {
+				angleY = Math.PI * (event.clientX / window.innerWidth - 0.5);
+				angleX = Math.PI * (event.clientY / window.innerHeight - 0.5);
+				if(angleY < 0) angleX += 2*Math.PI;
+			}
+			
+		</script>
+	</body>
+</html>
