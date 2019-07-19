@@ -1,0 +1,10 @@
+OpenGL
+3.2
+VESTA
+CGP_SurnameM_description
+pawel.kowalczyk@uni.lodz.pl
+pkowa@uni.lodz.pl
+B528
+Mondays 11.30 - 12.30
+Tuesdays 2pm - 3pm
+
