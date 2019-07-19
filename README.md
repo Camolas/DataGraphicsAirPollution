@@ -3,7 +3,7 @@ Computer Graphics Programming project course
 
 
 ![LAIG  Project](https://user-images.githubusercontent.com/7607213/61467600-cf8d7c00-a973-11e9-888c-8d47e5713949.png)
-##### open Pollution_Earth.html in your browser
+##### open Pollution_Earth.html in your browser, inside Pollution_Project folder, cd Pollution_Project in commands console 
 
 if this not works in cmd run: python3 -m http.server or python -m http.server
 to create a browser. 
